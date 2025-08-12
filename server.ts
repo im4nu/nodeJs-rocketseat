@@ -1,6 +1,6 @@
 import fastify from "fastify";
 import crypto from "node:crypto";
-import { coursesTypes } from "./types";
+import { bodyTypes, coursesTypes } from "./types";
 
 const server = fastify();
 
@@ -16,15 +16,15 @@ server.get("/courses", () => {
 
 server.post("/courses", (request, reply) => {
   const courseId = crypto.randomUUID();
-  const courseTitle = request.body;
+  const body = request.body as bodyTypes;
 
-  if (!courseTitle) {
-    reply.status(400).send("Título obrigatório");
+  if (!body.title) {
+    reply.status(400).send({ message: "Título obrigatório" });
   }
 
-  courses.push({ id: courseId, title: courseTitle as string });
+  courses.push({ id: courseId, title: body.title });
 
-  return reply.status(201).send({ courseTitle });
+  return reply.status(201).send({ body });
 });
 
 server.get("/courses/:id", (request, reply) => {
