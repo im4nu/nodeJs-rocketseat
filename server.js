@@ -15,10 +15,15 @@ server.get("/courses", () => {
 
 server.post("/courses", (request, reply) => {
   const courseId = crypto.randomUUID();
+  const courseTitle = request.body;
 
-  courses.push({ id: courseId, title: "Novo curso" });
+  if (!courseTitle) {
+    reply.status(400).send("Título obrigatório");
+  }
 
-  return reply.status(201).send({ courseId });
+  courses.push({ id: courseId, title: courseTitle });
+
+  return reply.status(201).send({ courseTitle });
 });
 
 server.get("/courses/:id", (request, reply) => {
