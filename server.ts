@@ -11,10 +11,10 @@ const courses = [
 ];
 
 server.get("/courses", () => {
-  return courses;
+  return { courses };
 });
 
-server.post("/courses", (request, reply) => {
+server.post("/createCourses", (request, reply) => {
   const courseId = crypto.randomUUID();
   const body = request.body as bodyTypes;
 
@@ -24,7 +24,7 @@ server.post("/courses", (request, reply) => {
 
   courses.push({ id: courseId, title: body.title });
 
-  return reply.status(201).send({ body });
+  return reply.status(201).send({ body, courseId });
 });
 
 server.get("/courses/:id", (request, reply) => {
