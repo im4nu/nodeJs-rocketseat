@@ -3,6 +3,11 @@ export type coursesTypes = {
   title: string;
 };
 
-export type bodyTypes = {
+export type createCourseBodyTypes = {
   title: string;
+  description: string | null;
+};
+
+export type getCourseByIdParamType = {
+  id: string;
 };
