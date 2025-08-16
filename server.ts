@@ -18,6 +18,7 @@ const courses = [
   { id: "0", title: "Curso de node" },
   { id: "1", title: "Curso de react" },
   { id: "2", title: "Curso de php" },
+  { id: "3", title: "Curso de css"}
 ];
 
 server.get("/courses", () => {
