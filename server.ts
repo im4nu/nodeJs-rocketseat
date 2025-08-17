@@ -6,10 +6,10 @@ import {
 } from "fastify-type-provider-zod";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import fastifySwagger from "@fastify/swagger";
-import { fastifySwaggerUi } from "@fastify/swagger-ui";
 import { GetCourseByIdRoute } from "./src/routes/get-course-by-id";
 import { GetAllCoursesRoute } from "./src/routes/get-all-courses";
 import { CreateCourseRoute } from "./src/routes/create-course";
+import scalarApiReference from "@scalar/fastify-api-reference";
 
 const server = fastify({
   logger: {
@@ -33,8 +33,11 @@ server.register(fastifySwagger, {
   },
   transform: jsonSchemaTransform,
 });
-server.register(fastifySwaggerUi, {
+server.register(scalarApiReference, {
   routePrefix: "/docs",
+  configuration: {
+    theme: "deepSpace",
+  },
 });
 
 server.setValidatorCompiler(validatorCompiler); // Valida a entrada
