@@ -1,8 +1,15 @@
 import fastify from "fastify";
-import { createCourseBodyTypes, getCourseByIdParamType } from "./types";
-import { db } from "./src/database/client";
-import { courses } from "./src/database/schema";
-import { eq } from "drizzle-orm";
+import {
+  validatorCompiler,
+  serializerCompiler,
+  jsonSchemaTransform,
+} from "fastify-type-provider-zod";
+import { ZodTypeProvider } from "fastify-type-provider-zod";
+import fastifySwagger from "@fastify/swagger";
+import { fastifySwaggerUi } from "@fastify/swagger-ui";
+import { GetCourseByIdRoute } from "./src/routes/get-course-by-id";
+import { GetAllCoursesRoute } from "./src/routes/get-all-courses";
+import { CreateCourseRoute } from "./src/routes/create-course";
 
 const server = fastify({
   logger: {
@@ -14,51 +21,29 @@ const server = fastify({
       },
     },
   },
+}).withTypeProvider<ZodTypeProvider>();
+
+// Swagger
+server.register(fastifySwagger, {
+  openapi: {
+    info: {
+      title: "Desafio de nodeJs rocketseat",
+      version: "1.0.0",
+    },
+  },
+  transform: jsonSchemaTransform,
+});
+server.register(fastifySwaggerUi, {
+  routePrefix: "/docs",
 });
 
-server.get("/getAllcourses", async (reques, reply) => {
-  const result = await db
-    .select({
-      id: courses.id,
-      title: courses.title,
-    })
-    .from(courses);
+server.setValidatorCompiler(validatorCompiler); // Valida a entrada
+server.setSerializerCompiler(serializerCompiler); // Transorma a saída
 
-  return reply.send({ courses: result });
-});
-
-server.post("/createCourse", async (request, reply) => {
-  const body = request.body as createCourseBodyTypes;
-
-  if (!body.title) {
-    return reply.status(400).send({ message: "Título obrigatório" });
-  }
-
-  const result = await db
-    .insert(courses)
-    .values({
-      title: body.title,
-      description: body.description,
-    })
-    .returning();
-
-  return reply.send({ courseId: result[0].id });
-});
-
-server.get("/getCourseById/:id", async (request, reply) => {
-  const params = request.params as getCourseByIdParamType;
-  const courseId = params.id;
-
-  const result = await db
-    .select()
-    .from(courses)
-    .where(eq(courses.id, courseId))
-    .limit(1);
-
-  if (result.length > 0) {
-    return { course: result[0] };
-  }
-});
+// Rotas
+server.register(GetCourseByIdRoute);
+server.register(GetAllCoursesRoute);
+server.register(CreateCourseRoute);
 
 server.listen({ port: 3333 }).then(() => {
   console.log("HTTP server running!");
